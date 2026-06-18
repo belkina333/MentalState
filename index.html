@@ -1,4 +1,4 @@
-<!-- commit 2: добавил комментарий -->
+<!-- commit 2: добавила комментарий -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -556,7 +556,7 @@
     }
 
     let currentAvatar = localStorage.getItem('userAvatar') || '😊';
-
+// Выбор аватарки с сохранением в localStorage
     function selectAvatar(emoji) {
         currentAvatar = emoji;
         localStorage.setItem('userAvatar', emoji);
@@ -632,7 +632,7 @@
             document.getElementById('login-password').value = '';
         }
     }
-
+// Функция добавления новой записи
     function addRecord() {
         const state = document.getElementById('mood-state').value;
         const comment = document.getElementById('mood-comment').value.trim();
