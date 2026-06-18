@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MentalState — Дневник эмоций</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: #d4f1f9;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1200px;
+            background: #ffffff;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0, 50, 70, 0.15);
+            padding: 32px 40px 30px;
+            border: 1px solid #b2e5ed;
+            min-height: 90vh;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #00796b;
+            text-align: center;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .page {
+            display: none;
+            animation: fade 0.25s ease;
+        }
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fade {
+            0% { opacity: 0.4; transform: translateY(8px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: #f0fafc;
+            border-radius: 28px;
+            padding: 24px 28px;
+            margin-bottom: 20px;
+            border: 1px solid #c8e8ef;
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: #00796b;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            font-size: 15px;
+            color: #1a3b44;
+            margin: 14px 0 4px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #bcd9e0;
+            border-radius: 18px;
+            font-size: 15px;
+            background: white;
+            transition: 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #4db6ac;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(77, 182, 172, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 18px;
+            margin: 8px 0 6px;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 400;
+            font-size: 15px;
+            margin: 0;
+            color: #1f4a54;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #00796b;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #00796b;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+            width: 100%;
+        }
+        .btn:hover {
+            background: #005b50;
+            transform: scale(0.98);
+        }
+        .btn-outline {
+            background: transparent;
+            color: #00796b;
+            border: 1.5px solid #00796b;
+        }
+        .btn-outline:hover {
+            background: #e0f7fa;
+        }
+
+        .nav-row {
+            display: flex;
+            gap: 10px;
+            margin: 18px 0 14px;
+            flex-wrap: wrap;
+        }
+        .nav-row .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px 10px;
+            font-size: 15px;
+            background: #e0f7fa;
+            color: #00796b;
+            border: 1px solid #b2e5ed;
+        }
+        .nav-row .btn:hover {
+            background: #b2e5ed;
+        }
+        .nav-row .btn-logout {
+            background: #ffcdd2;
+            border-color: #ef9a9a;
+            color: #b71c1c;
+        }
+        .nav-row .btn-logout:hover {
+            background: #ef9a9a;
+        }
+
+        .record-item {
+            background: white;
+            border-radius: 20px;
+            padding: 16px 20px;
+            margin-bottom: 14px;
+            border-left: 6px solid #4db6ac;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .record-item .date {
+            font-size: 13px;
+            color: #5a7e88;
+        }
+        .record-item .state {
+            font-weight: 600;
+            font-size: 18px;
+            color: #00796b;
+        }
+        .record-item .comment {
+            color: #1f3f48;
+            margin: 4px 0;
+        }
+        .record-item .factor-tag {
+            display: inline-block;
+            background: #e0f7fa;
+            border-radius: 30px;
+            padding: 2px 14px;
+            font-size: 13px;
+            margin: 3px 6px 3px 0;
+            color: #00695c;
+        }
+
+        .profile-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #d4eef5;
+            flex-wrap: wrap;
+        }
+        .profile-row strong {
+            color: #00796b;
+        }
+
+        .stat-box {
+            background: #e0f7fa;
+            border-radius: 24px;
+            padding: 16px;
+            text-align: center;
+            margin: 12px 0;
+        }
+        .stat-box .num {
+            font-size: 32px;
+            font-weight: 700;
+            color: #00796b;
+        }
+        .stat-box .label {
+            color: #2f5e68;
+        }
+
+        .link-back {
+            text-align: center;
+            margin-top: 16px;
+            color: #00796b;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .error-msg {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 16px;
+            margin: 12px 0;
+            text-align: center;
+        }
+        .hidden { display: none; }
+
+        .avatar-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 10px 0 6px;
+            justify-content: center;
+        }
+        .avatar-row .avatar-option {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            background: #e0f7fa;
+        }
+        .avatar-row .avatar-option:hover {
+            transform: scale(1.1);
+        }
+        .avatar-row .avatar-option.active-avatar {
+            border-color: #00796b;
+            box-shadow: 0 0 0 4px rgba(0, 121, 107, 0.25);
+        }
+
+        .avatar-big {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            background: #e0f7fa;
+            border: 2px solid #00796b;
+            margin: 0 auto 12px;
+        }
+
+        .flex-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .avatar-section-title {
+            text-align: center;
+            font-weight: 500;
+            color: #00796b;
+            margin-top: 4px;
+            font-size: 15px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            padding: 32px 40px;
+            border-radius: 30px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .modal-box h2 {
+            color: #00796b;
+            margin-bottom: 12px;
+        }
+        .modal-box input {
+            margin: 10px 0 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <h1>MentalState</h1>
+
+    <div id="page-login" class="page active">
+        <div class="card">
+            <div class="card-title">Добро пожаловать</div>
+            <label>Email</label>
+            <input type="email" id="login-email" placeholder="polzovatel@gmail.com">
+            <label>Пароль</label>
+            <input type="password" id="login-password" placeholder="......">
+            <button class="btn" onclick="login()">Войти</button>
+            <div style="text-align:center;margin-top:14px;font-size:15px;">
+                Нет аккаунта? <span style="color:#00796b;font-weight:600;cursor:pointer;" onclick="showRegisterForm()">Зарегистрироваться</span>
+            </div>
+            <div id="login-error" class="error-msg hidden"></div>
+        </div>
+
+        <div id="register-block" class="hidden">
+            <div class="card">
+                <div class="card-title">Регистрация</div>
+                <label>Имя</label>
+                <input type="text" id="reg-name" placeholder="Введите имя">
+                <label>Фамилия</label>
+                <input type="text" id="reg-surname" placeholder="Фамилия">
+                <label>Email</label>
+                <input type="email" id="reg-email" placeholder="polzovatel@gmail.com">
+                <label>Пароль</label>
+                <input type="password" id="reg-password" placeholder="......">
+                <button class="btn" onclick="register()">Зарегистрироваться</button>
+                <div style="text-align:center;margin-top:12px;font-size:14px;">
+                    Уже есть аккаунт? <span style="color:#00796b;font-weight:600;cursor:pointer;" onclick="showLoginForm()">Войти</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="name-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Как тебя зовут?</h2>
+            <p style="color:#4a6e78;margin-bottom:6px;">Введи своё имя, оно будет отображаться в профиле</p>
+            <input type="text" id="user-name-input" placeholder="...">
+            <button class="btn" onclick="saveUserName()">Сохранить</button>
+        </div>
+    </div>
+
+    <div id="page-main" class="page">
+        <div class="card" style="background:#e0f7fa;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                <div style="display:flex;align-items:center;gap:16px;">
+                    <div id="main-avatar" class="avatar-big" style="width:56px;height:56px;font-size:30px;">😊</div>
+                    <span style="font-size:20px;font-weight:600;color:#00796b;">Привет, <span id="user-name">Пользователь</span>!</span>
+                </div>
+                <span style="background:#00796b;color:white;padding:4px 16px;border-radius:30px;font-size:13px;">онлайн</span>
+            </div>
+        </div>
+
+        <div class="nav-row">
+            <button class="btn" onclick="showPage('add')">Запись</button>
+            <button class="btn" onclick="showPage('history')">История</button>
+            <button class="btn" onclick="showPage('profile')">Профиль</button>
+            <button class="btn btn-logout" onclick="logout()">Выход</button>
+        </div>
+
+        <div style="margin:10px 0 6px;color:#2f5e68;font-size:16px;font-weight:500;">Последние записи</div>
+        <div id="main-feed">
+            <div class="record-item">
+                <div class="date">27.01.2026</div>
+                <div class="state">Тревожно</div>
+                <div class="comment">Испытание на работе</div>
+                <span class="factor-tag">Плохой сон</span>
+                <span class="factor-tag">Проблемы на работе</span>
+            </div>
+            <div class="record-item">
+                <div class="date">26.01.2026</div>
+                <div class="state">Спокойно</div>
+                <div class="comment">Хороший вечер</div>
+                <span class="factor-tag">Сон 7 часов</span>
+                <span class="factor-tag">Полезная еда</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-add" class="page">
+        <div class="card">
+            <div class="card-title">Новая запись</div>
+            <label>Ваше состояние</label>
+            <select id="mood-state">
+                <option value="Спокойствие">Спокойствие</option>
+                <option value="Тревожность" selected>Тревожность</option>
+                <option value="Грусть">Грусть</option>
+                <option value="Усталость">Усталость</option>
+                <option value="Раздражение">Раздражение</option>
+                <option value="Апатия">Апатия</option>
+                <option value="Злость">Злость</option>
+                <option value="Слёзы">Слёзы</option>
+            </select>
+
+            <label>Комментарий (по желанию)</label>
+            <textarea id="mood-comment" placeholder="Как я себя чувствую..."></textarea>
+
+            <label>Факторы</label>
+            <div class="checkbox-group">
+                <label><input type="checkbox" class="factor-check"> Плохой сон</label>
+                <label><input type="checkbox" class="factor-check"> Проблемы на работе/учёбе</label>
+                <label><input type="checkbox" class="factor-check"> Плохое самочувствие</label>
+                <label><input type="checkbox" class="factor-check"> Плохая погода</label>
+                <label><input type="checkbox" class="factor-check"> Конфликт</label>
+                <label><input type="checkbox" class="factor-check"> Усталость</label>
+            </div>
+
+            <button class="btn" onclick="addRecord()">Сохранить запись</button>
+            <div id="add-error" class="error-msg hidden"></div>
+            <div class="link-back" onclick="showPage('main')">На главную</div>
+        </div>
+    </div>
+
+    <div id="page-history" class="page">
+        <div class="card">
+            <div class="card-title">История записей</div>
+            <div id="history-list">
+                <div class="record-item">
+                    <div class="date">27.01.2026</div>
+                    <div class="state">Тревожно</div>
+                    <div class="comment">Испытание на работе</div>
+                    <span class="factor-tag">Плохой сон</span>
+                    <span class="factor-tag">Проблемы на работе</span>
+                </div>
+                <div class="record-item">
+                    <div class="date">26.01.2026</div>
+                    <div class="state">Спокойно</div>
+                    <div class="comment">Хороший вечер</div>
+                    <span class="factor-tag">Сон 7 часов</span>
+                    <span class="factor-tag">Полезная еда</span>
+                </div>
+                <div class="record-item">
+                    <div class="date">25.01.2026</div>
+                    <div class="state">Грусть</div>
+                    <div class="comment">Плохой сон</div>
+                    <span class="factor-tag">Сон 3 часа</span>
+                    <span class="factor-tag">Пробежка</span>
+                </div>
+            </div>
+            <div class="link-back" onclick="showPage('main')">На главную</div>
+        </div>
+    </div>
+
+    <div id="page-profile" class="page">
+        <div class="card">
+            <div class="card-title">Мой профиль</div>
+            <div class="flex-center">
+                <div id="profile-avatar" class="avatar-big" style="font-size:52px;">😊</div>
+            </div>
+
+            <div class="avatar-section-title">Выберите аватар</div>
+            <div class="avatar-row" id="avatar-row">
+                <div class="avatar-option active-avatar" data-avatar="😊" onclick="selectAvatar('😊')">😊</div>
+                <div class="avatar-option" data-avatar="😎" onclick="selectAvatar('😎')">😎</div>
+                <div class="avatar-option" data-avatar="😌" onclick="selectAvatar('😌')">😌</div>
+                <div class="avatar-option" data-avatar="🤗" onclick="selectAvatar('🤗')">🤗</div>
+                <div class="avatar-option" data-avatar="🥰" onclick="selectAvatar('🥰')">🥰</div>
+                <div class="avatar-option" data-avatar="😐" onclick="selectAvatar('😐')">😐</div>
+                <div class="avatar-option" data-avatar="😔" onclick="selectAvatar('😔')">😔</div>
+                <div class="avatar-option" data-avatar="🌙" onclick="selectAvatar('🌙')">🌙</div>
+                <div class="avatar-option" data-avatar="🐱" onclick="selectAvatar('🐱')">🐱</div>
+                <div class="avatar-option" data-avatar="🐶" onclick="selectAvatar('🐶')">🐶</div>
+                <div class="avatar-option" data-avatar="🐿️" onclick="selectAvatar('🐿️')">🐿️</div>
+                <div class="avatar-option" data-avatar="🦊" onclick="selectAvatar('🦊')">🦊</div>
+                <div class="avatar-option" data-avatar="🐻" onclick="selectAvatar('🐻')">🐻</div>
+                <div class="avatar-option" data-avatar="🐼" onclick="selectAvatar('🐼')">🐼</div>
+                <div class="avatar-option" data-avatar="🐰" onclick="selectAvatar('🐰')">🐰</div>
+                <div class="avatar-option" data-avatar="🦝" onclick="selectAvatar('🦝')">🦝</div>
+            </div>
+
+            <div class="profile-row"><strong>Имя</strong> <span id="profile-name">Пользователь</span></div>
+            <div class="profile-row"><strong>Email</strong> <span id="profile-email">polzovatel@gmail.com</span></div>
+
+            <div class="stat-box">
+                <div class="num" id="profile-count">3</div>
+                <div class="label">всего записей</div>
+            </div>
+
+            <label style="margin-top:18px;">Настройки конфиденциальности</label>
+            <div class="checkbox-group">
+                <label><input type="checkbox" checked> Двухфакторная аутентификация</label>
+                <label><input type="checkbox"> Уведомления на email</label>
+            </div>
+            <button class="btn btn-outline" style="margin-top:6px;">Сохранить настройки</button>
+
+            <div class="link-back" onclick="showPage('main')">На главную</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let userName = localStorage.getItem('userName') || 'Пользователь';
+
+    function updateUserNameUI() {
+        document.getElementById('user-name').textContent = userName;
+        document.getElementById('profile-name').textContent = userName;
+    }
+    updateUserNameUI();
+
+    function saveUserName() {
+        const input = document.getElementById('user-name-input');
+        const name = input.value.trim();
+        if (name) {
+            userName = name;
+            localStorage.setItem('userName', name);
+            updateUserNameUI();
+            document.getElementById('name-modal').classList.remove('active');
+        } else {
+            alert('Введи своё имя!');
+        }
+    }
+
+    let currentAvatar = localStorage.getItem('userAvatar') || '😊';
+
+    function selectAvatar(emoji) {
+        currentAvatar = emoji;
+        localStorage.setItem('userAvatar', emoji);
+        document.querySelectorAll('.avatar-option').forEach(el => {
+            el.classList.remove('active-avatar');
+            if (el.dataset.avatar === emoji) {
+                el.classList.add('active-avatar');
+            }
+        });
+        document.getElementById('profile-avatar').textContent = emoji;
+        document.getElementById('main-avatar').textContent = emoji;
+    }
+
+    window.onload = function() {
+        selectAvatar(currentAvatar);
+    };
+
+    function showPage(pageId) {
+        const pages = ['page-login', 'page-main', 'page-add', 'page-history', 'page-profile'];
+        pages.forEach(id => {
+            document.getElementById(id).classList.remove('active');
+        });
+        const target = document.getElementById('page-' + pageId);
+        if (target) target.classList.add('active');
+        document.querySelectorAll('.error-msg').forEach(e => e.classList.add('hidden'));
+    }
+
+    function showRegisterForm() {
+        document.getElementById('register-block').classList.remove('hidden');
+        document.getElementById('login-error').classList.add('hidden');
+    }
+    function showLoginForm() {
+        document.getElementById('register-block').classList.add('hidden');
+    }
+
+    function login() {
+        const email = document.getElementById('login-email').value.trim();
+        const pass = document.getElementById('login-password').value.trim();
+
+        if (!email || !pass) {
+            showError('login-error', 'Заполните все поля');
+            return;
+        }
+
+        if (email === 'polzovatel@gmail.com' && pass === '123') {
+            document.getElementById('name-modal').classList.add('active');
+            document.getElementById('login-error').classList.add('hidden');
+            showPage('main');
+        } else {
+            showError('login-error', 'Неверный email или пароль');
+        }
+    }
+
+    function register() {
+        const name = document.getElementById('reg-name').value.trim();
+        const surname = document.getElementById('reg-surname').value.trim();
+        const email = document.getElementById('reg-email').value.trim();
+        const pass = document.getElementById('reg-password').value.trim();
+        if (!name || !surname || !email || !pass) {
+            alert('Заполните все поля');
+            return;
+        }
+        alert('Регистрация успешна! Теперь войдите.');
+        document.getElementById('register-block').classList.add('hidden');
+        document.getElementById('login-email').value = email;
+        document.getElementById('login-password').value = '';
+    }
+
+    function logout() {
+        if (confirm('Выйти из аккаунта?')) {
+            showPage('login');
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-password').value = '';
+        }
+    }
+
+    function addRecord() {
+        const state = document.getElementById('mood-state').value;
+        const comment = document.getElementById('mood-comment').value.trim();
+        const factors = document.querySelectorAll('.factor-check:checked');
+        if (!state) {
+            showError('add-error', 'Выберите состояние');
+            return;
+        }
+        const factorList = Array.from(factors).map(cb => cb.parentElement.textContent.trim());
+        const record = {
+            date: new Date().toLocaleDateString('ru-RU'),
+            state: state,
+            comment: comment || '—',
+            factors: factorList
+        };
+        const historyDiv = document.getElementById('history-list');
+        const newRecord = document.createElement('div');
+        newRecord.className = 'record-item';
+        newRecord.innerHTML = `
+            <div class="date">${record.date}</div>
+            <div class="state">${record.state}</div>
+            <div class="comment">${record.comment}</div>
+            ${record.factors.map(f => `<span class="factor-tag">${f}</span>`).join('')}
+        `;
+        historyDiv.prepend(newRecord);
+        const countSpan = document.getElementById('profile-count');
+        countSpan.textContent = parseInt(countSpan.textContent) + 1;
+        document.getElementById('main-feed').prepend(newRecord.cloneNode(true));
+        document.getElementById('mood-comment').value = '';
+        document.querySelectorAll('.factor-check').forEach(cb => cb.checked = false);
+        showError('add-error', 'Запись сохранена', '#2e7d32');
+        setTimeout(() => {
+            document.getElementById('add-error').classList.add('hidden');
+        }, 2000);
+    }
+
+    function showError(id, msg, color = '#c62828') {
+        const el = document.getElementById(id);
+        el.textContent = msg;
+        el.style.color = color || '#c62828';
+        el.classList.remove('hidden');
+    }
+</script>
+</body>
+</html>
